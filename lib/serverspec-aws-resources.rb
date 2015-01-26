@@ -1,0 +1,2 @@
+require_relative 'resources/s3_bucket_resource'
+require_relative 'resources/vpc_resource'
