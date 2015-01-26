@@ -8,6 +8,45 @@ require_relative 'ec2_instance_resource'
 module Serverspec
   module Type
 
+    class NetworkAcls < Base
+
+      def initialize(network_acls)
+        @network_acls = network_acls
+      end
+
+      def has_default_rules?
+        actual_rules = []
+        @network_acls.each { |network_acl| network_acl.entries.each { |entry| actual_rules << entry } }
+
+        return false unless actual_rules.size == 4
+
+        actual_rules_arr = actual_rules.each do |actual_rule|
+          actual_rules_arr << {
+            rule_number: actual_rule.rule_number,
+            protocol: actual_rule.protocol,
+            port_range: actual_rule.port_range,
+            cidr_block: actual_rule.cidr_block,
+            action: actual_rule.action
+          }
+        end
+
+        expected_rules_arr = [
+          {rule_number: 100, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :allow},
+          {rule_number: 32767,  protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :deny},
+          {rule_number: 100, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :allow},
+          {rule_number: 32767, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :deny}
+        ]
+
+        (actual_rules_arr + expected_rules_arr).uniq == 4
+      end
+
+
+      def size
+        @network_acls.size
+      end
+
+    end
+
     class VPC < Base
 
       def initialize(vpc_id)
@@ -66,6 +105,9 @@ module Serverspec
         compute_subnets.size
       end
 
+      def network_acls
+        NetworkAcls.new ompute_network_acls
+      end
       def subnets
         Subnets.new compute_subnets
       end
@@ -87,6 +129,12 @@ module Serverspec
       end
 
       private
+
+      def compute_network_acls
+        network_acls_arr = []
+        content.network_acls.each { |network_acl| network_acls_arr << network_acl }
+        network_acls_arr
+      end
 
       def compute_subnets
         subnet_arr = []

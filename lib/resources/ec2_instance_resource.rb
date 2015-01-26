@@ -15,6 +15,10 @@ module Serverspec
         @ec2instance.source_dest_check
       end
 
+      def has_elastic_ip?
+        @ec2instance.has_elastic_ip?
+      end
+
       def has_ingress_rules?(expected_ingress_rules)
         actual_ingress_rules = Set.new
         @ec2instance.security_groups.each do |sg|
