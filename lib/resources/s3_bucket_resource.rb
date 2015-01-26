@@ -1,3 +1,6 @@
+require 'aws-sdk'
+require 'serverspec'
+
 module Serverspec
   module Type
 
