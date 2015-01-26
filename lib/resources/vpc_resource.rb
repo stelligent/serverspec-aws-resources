@@ -1,78 +1,12 @@
 require 'aws-sdk'
 require 'serverspec'
 
+require_relative 'vpn_gateway_resource'
+require_relative 'subnets'
+require_relative 'ec2_instance_resource'
 
 module Serverspec
   module Type
-
-    class EC2Instance < Base
-
-      def initialize(ec2instance)
-        @ec2instance = ec2instance
-      end
-
-      def has_source_dest_checking_disabled?
-        @ec2instance.source_dest_check
-      end
-
-      def has_ingress_rules?(expected_ingress_rules)
-        actual_ingress_rules = Set.new
-        @ec2instance.security_groups.each do |sg|
-          sg.ingress_ip_permissions.each do |perm|
-            if perm.groups == []
-              actual_ingress_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :ip_ranges=>perm.ip_ranges}
-            else
-              actual_ingress_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :groups=>perm.groups}
-            end
-          end
-        end
-
-        actual_ingress_rules.should == Set.new(expected_ingress_rules)
-      end
-
-      #this is duplicative
-      def has_egress_rules?(expected_egress_rules)
-        actual_egress_rules = Set.new
-        @ec2instance.security_groups.each do |sg|
-          sg.egress_ip_permissions.each do |perm|
-            if perm.groups == []
-              actual_egress_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :ip_ranges=>perm.ip_ranges}
-            else
-              actual_egress_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :groups=>perm.groups}
-            end
-          end
-        end
-
-        actual_egress_rules.should == Set.new(expected_egress_rules)
-      end
-    end
-
-    class VPNGateway < Base
-
-      def initialize(vgw)
-        @vgw = vgw
-      end
-
-      def has_name?(name)
-        @vgw.tags['Name'] == name
-      end
-    end
-
-    class Subnets < Base
-
-      def initialize(subnets)
-        @subnets = subnets
-      end
-
-      def has_cidr_blocks?(expected_cidr_blocks)
-        actual_cidr_blocks = @subnets.map { |subnet| subnet.cidr_block }
-        actual_cidr_blocks - expected_cidr_blocks == [] and expected_cidr_blocks - actual_cidr_blocks == []
-      end
-
-      def size
-        @subnets.size
-      end
-    end
 
     class VPC < Base
 
