@@ -2,7 +2,7 @@ require 'aws-sdk'
 require 'serverspec'
 
 require_relative 'vpn_gateway_resource'
-require_relative 'subnets'
+require_relative 'subnets_resource'
 require_relative 'ec2_instance_resource'
 
 module Serverspec
