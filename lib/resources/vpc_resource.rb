@@ -174,7 +174,10 @@ module Serverspec
       #anything that isnt natted or igw
       #could be only local to vpc, or connected via a peering or vpn
       def compute_private_subnets
-        subnet_ids(compute_subnets) - subnet_ids(compute_public_subnets) - subnet_ids(compute_natted_subnets)
+        private_subnet_ids = subnet_ids(compute_subnets) - subnet_ids(compute_public_subnets) - subnet_ids(compute_natted_subnets)
+        private_subnets = []
+        content.subnets.each { |subnet| private_subnets << subnet if private_subnet_ids.include? subnet.id }
+        private_subnets
       end
 
       def subnet_ids(subnets)
