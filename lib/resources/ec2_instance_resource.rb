@@ -12,7 +12,7 @@ module Serverspec
       end
 
       def has_source_dest_checking_disabled?
-        @ec2instance.source_dest_check
+        not @ec2instance.source_dest_check
       end
 
       def has_elastic_ip?
