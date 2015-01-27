@@ -20,7 +20,8 @@ module Serverspec
 
         return false unless actual_rules.size == 4
 
-        actual_rules_arr = actual_rules.each do |actual_rule|
+        actual_rules_arr = []
+        actual_rules.each do |actual_rule|
           actual_rules_arr << {
             rule_number: actual_rule.rule_number,
             protocol: actual_rule.protocol,
@@ -106,7 +107,7 @@ module Serverspec
       end
 
       def network_acls
-        NetworkAcls.new ompute_network_acls
+        NetworkAcls.new compute_network_acls
       end
       def subnets
         Subnets.new compute_subnets
@@ -128,18 +129,24 @@ module Serverspec
         nat_instances.map { |nat| EC2Instance.new(nat) }
       end
 
+      def public_ec2_instances
+        compute_public_subnets.inject([]) { |instances, subnet| instances + collection_to_arr(subnet.instances) }
+      end
+
       private
 
+      def collection_to_arr(collection)
+        arr = []
+        collection.each { |element| arr << element }
+        arr
+      end
+
       def compute_network_acls
-        network_acls_arr = []
-        content.network_acls.each { |network_acl| network_acls_arr << network_acl }
-        network_acls_arr
+        collection_to_arr(content.network_acls)
       end
 
       def compute_subnets
-        subnet_arr = []
-        content.subnets.each { |subnet| subnet_arr << subnet }
-        subnet_arr
+        collection_to_arr(content.subnets)
       end
 
       def compute_public_subnets
