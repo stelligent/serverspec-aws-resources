@@ -15,20 +15,18 @@ module Serverspec
       end
 
       def has_default_rules?
-        actual_rules = []
-        @network_acls.each { |network_acl| network_acl.entries.each { |entry| actual_rules << entry } }
-
-        return false unless actual_rules.size == 4
-
         actual_rules_arr = []
-        actual_rules.each do |actual_rule|
-          actual_rules_arr << {
-            rule_number: actual_rule.rule_number,
-            protocol: actual_rule.protocol,
-            port_range: actual_rule.port_range,
-            cidr_block: actual_rule.cidr_block,
-            action: actual_rule.action
-          }
+
+        @network_acls.each do |network_acl|
+          network_acl.entries.each do |entry|
+            actual_rules_arr << {
+              rule_number: entry.rule_number,
+              protocol: entry.protocol,
+              port_range: entry.port_range,
+              cidr_block: entry.cidr_block,
+              action: entry.action
+            }
+          end
         end
 
         expected_rules_arr = [
@@ -38,7 +36,7 @@ module Serverspec
           {rule_number: 32767, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :deny}
         ]
 
-        (actual_rules_arr + expected_rules_arr).uniq == 4
+        Set.new(actual_rules_arr) == Set.new(expected_rules_arr)
       end
 
 
@@ -109,6 +107,7 @@ module Serverspec
       def network_acls
         NetworkAcls.new compute_network_acls
       end
+
       def subnets
         Subnets.new compute_subnets
       end
@@ -130,10 +129,21 @@ module Serverspec
       end
 
       def public_ec2_instances
-        compute_public_subnets.inject([]) { |instances, subnet| instances + collection_to_arr(subnet.instances) }
+        public_instances  = compute_public_instances
+        public_instances.map { |instance| EC2Instance.new(instance) }
+      end
+
+      def public_non_nat_ec2_instances
+        public_instances  = compute_public_instances
+        result =  public_instances.select { |instance| instance unless nats_ids.include? instance.id }
+        result.map { |instance| EC2Instance.new(instance) }
       end
 
       private
+
+      def compute_public_instances
+        compute_public_subnets.inject([]) { |instances, subnet| instances + collection_to_arr(subnet.instances) }
+      end
 
       def collection_to_arr(collection)
         arr = []
