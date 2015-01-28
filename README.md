@@ -72,7 +72,7 @@ Finally, add a requirement statement to spec/spec_helper.rb:
 
    and you should see a failure that vpc-12345 doesn't exist:
 
-       RuntimeError:
+        RuntimeError:
           vpc-12345 does not exist
 
 5. Create a vpc and back-fill its id into vpc_example_spec in place of 12345, e.g. 64d123ff
