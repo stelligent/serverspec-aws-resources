@@ -125,18 +125,18 @@ module Serverspec
       end
 
       def nats
-        nat_instances.map { |nat| EC2Instance.new(nat) }
+        nat_instances.map { |nat| EC2Instance.new(nat.id) }
       end
 
       def public_ec2_instances
         public_instances  = compute_public_instances
-        public_instances.map { |instance| EC2Instance.new(instance) }
+        public_instances.map { |instance| EC2Instance.new(instance.id) }
       end
 
       def public_non_nat_ec2_instances
         public_instances  = compute_public_instances
         result =  public_instances.select { |instance| instance unless nats_ids.include? instance.id }
-        result.map { |instance| EC2Instance.new(instance) }
+        result.map { |instance| EC2Instance.new(instance.id) }
       end
 
       private
