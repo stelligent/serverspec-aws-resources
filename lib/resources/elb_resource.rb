@@ -83,6 +83,9 @@ module Serverspec
       def to_s
         "Elastic Load Balancer: #{}"
       end
+
+
+      #look for the sg too
     end
 
     #this is how the resource is called out in a spec
