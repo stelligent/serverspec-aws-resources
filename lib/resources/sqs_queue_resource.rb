@@ -39,6 +39,10 @@ module Serverspec
         not content.policy.nil?
       end
 
+      def has_visibility_timeout?(visibility_timeout)
+        content.visibility_timeout == visibility_timeout
+      end
+
       def has_redrive_policy_dead_letter_target_arn?(dead_letter_target_arn)
         if content.policy.nil?
           false
