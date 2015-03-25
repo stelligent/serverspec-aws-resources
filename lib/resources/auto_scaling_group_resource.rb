@@ -12,8 +12,7 @@ module Serverspec
       end
 
       def content
-        asg = AWS::AutoScaling.new
-        asg.groups[@group_name]
+        AWS::AutoScaling.new.groups.enum.select { |group| Regexp.new(@group_name).match group.name }.first
       end
 
       def has_default_cooldown?(default_cooldown)
