@@ -37,7 +37,7 @@ module Serverspec
         has_sg_rules(expected_egress_rules) { |sg| sg.egress_ip_permissions }
       end
 
-      def has_sg_rules(expected_rules)
+      def has_sg_rules(expected_rules) #&permissionw
         actual_rules = Set.new
         content.security_groups.each do |sg|
           yield(sg).each do |perm|

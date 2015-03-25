@@ -35,28 +35,10 @@ module Serverspec
         content.visibility_timeout == visibility_timeout
       end
 
-      def has_redrive_policy?
-        not content.policy.nil?
-      end
+      #redrive policy AWS::SQS::Client.get_queue_attributes
 
-      def has_visibility_timeout?(visibility_timeout)
-        content.visibility_timeout == visibility_timeout
-      end
-
-      def has_redrive_policy_dead_letter_target_arn?(dead_letter_target_arn)
-        if content.policy.nil?
-          false
-        else
-          content.policy.to_h['deadLetterTargetArn'] == dead_letter_target_arn
-        end
-      end
-
-      def has_redrive_policy_max_receive_count?(max_receive_count)
-        if content.policy.nil?
-          false
-        else
-          content.policy.to_h['maxReceiveCount'] == max_receive_count
-        end
+      def policy_statements
+        content.statements.map { |statement| policy_statement(statement) }
       end
 
       def to_s

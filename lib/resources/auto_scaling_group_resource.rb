@@ -1,5 +1,6 @@
 require 'aws-sdk'
 require 'serverspec'
+require_relative 'launch_configuration_resource'
 
 module Serverspec
   module Type
@@ -57,6 +58,9 @@ module Serverspec
         "autoscaling group: #{@group_name}"
       end
 
+      def launch_configuration
+        launch_configuration(content.launch_configuration.name)
+      end
     end
 
     #this is how the resource is called out in a spec

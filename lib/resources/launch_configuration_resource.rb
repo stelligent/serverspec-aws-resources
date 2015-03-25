@@ -33,14 +33,9 @@ module Serverspec
         content.user_data == user_data
       end
 
-      def has_security_groups?(user_data)
-        content.user_data == user_data
-      end
-
       def to_s
         "launch configuration: #{@name}"
       end
-
     end
 
     #this is how the resource is called out in a spec
