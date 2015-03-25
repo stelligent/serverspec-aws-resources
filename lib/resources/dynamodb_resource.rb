@@ -16,12 +16,12 @@ module Serverspec
 
 			def valid?
 				content.exists? 
-			end
-		end
+      end
 
-    def to_s
-      "DynamoDB Table: #{@table_name}"
-    end
+      def to_s
+        "DynamoDB Table: #{@table_name}"
+      end
+		end
     
 		def dynamo_db_table(table_name)
 			DynamoDB.new(table_name)
