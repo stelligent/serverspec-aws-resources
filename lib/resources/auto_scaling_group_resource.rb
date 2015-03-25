@@ -7,16 +7,18 @@ module Serverspec
 
     class AutoScalingGroup < Base
 
-      def initialize(group_name)
-        @group_name = group_name
+      def initialize(group_name_tag_value)
+        @group_name = group_name_tag_value
       end
 
       def content
         found_group_name = nil
 
-        AWS::AutoScaling.new.tags.each do |tag|
-          if tag[:key] == 'Name' and Regexp.new(@group_name).match tag[:value]
-            found_group = nil
+        AWS::AutoScaling.new.groups.each do |group|
+          group.tags.each do |tag|
+            if tag[:key] == 'Name' and tag[:value] == @group_name
+              found_group_name = group.name
+            end
           end
         end
 
@@ -50,6 +52,7 @@ module Serverspec
       def has_max_size?(max_size)
         content.max_size == max_size
       end
+
       def has_launch_configuration?(launch_configuration_name)
         content.launch_configuration_name == launch_configuration_name
       end
@@ -65,18 +68,19 @@ module Serverspec
       def has_enabled_metrics?(enabled_metrics)
         Set.new(content.enabled_metrics) == Set.new(enabled_metrics)
       end
+
       def to_s
         "autoscaling group: #{@group_name}"
       end
 
-      def launch_configuration
+      def group_launch_configuration
         launch_configuration(content.launch_configuration.name)
       end
     end
 
     #this is how the resource is called out in a spec
-    def auto_scaling_group(group_name)
-      AutoScalingGroup.new(group_name)
+    def auto_scaling_group(group_name_tag_value)
+      AutoScalingGroup.new(group_name_tag_value)
     end
 
   end
