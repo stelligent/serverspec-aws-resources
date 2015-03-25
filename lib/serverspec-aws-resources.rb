@@ -10,4 +10,5 @@ require_relative 'resources/swf_resource'
 require_relative 'resources/launch_configuration_resource'
 require_relative 'resources/auto_scaling_group_resource'
 require_relative 'resources/elb_resource'
+require_relative 'resources/iam_role_resource'
 

@@ -34,8 +34,8 @@ module Serverspec
     end
 
     #this is how the resource is called out in a spec
-    def iam_role(sns_topic_arn)
-      IAMRole.new(sns_topic_arn)
+    def iam_role(iam_role_arn)
+      IAMRole.new(iam_role_arn)
     end
 
   end
