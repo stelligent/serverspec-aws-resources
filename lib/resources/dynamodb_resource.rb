@@ -19,6 +19,10 @@ module Serverspec
 			end
 		end
 
+    def to_s
+      "DynamoDB Table: #{@table_name}"
+    end
+    
 		def dynamo_db_table(table_name)
 			DynamoDB.new(table_name)
 		end
