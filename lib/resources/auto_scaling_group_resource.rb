@@ -12,7 +12,19 @@ module Serverspec
       end
 
       def content
-        AWS::AutoScaling.new.groups.enum.select { |group| Regexp.new(@group_name).match group.name }.first
+        found_group_name = nil
+
+        AWS::AutoScaling.new.tags.each do |tag|
+          if tag[:key] == 'Name' and Regexp.new(@group_name).match tag[:value]
+            found_group = nil
+          end
+        end
+
+        if found_group_name == nil
+          raise "no match found for #{@group_name}"
+        else
+          AWS::AutoScaling.new.groups[found_group_name]
+        end
       end
 
       def has_default_cooldown?(default_cooldown)
