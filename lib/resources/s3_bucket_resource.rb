@@ -24,7 +24,7 @@ module Serverspec
       end
 
       def has_logging?(target_bucket_name, prefix)
-        response = AWS::S3::Client.new.get_bucket_logging(bucket_name: target_bucket_name)
+        response = AWS::S3::Client::V20060301.new.get_bucket_logging(bucket_name: target_bucket_name)
         puts response.data
         false
       end
