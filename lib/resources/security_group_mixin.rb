@@ -44,7 +44,7 @@ module Serverspec
             if perm.groups == []
               actual_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :ip_ranges=>perm.ip_ranges}
             else
-              actual_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :groups=>perm.groups}
+              actual_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :groups=>perm.groups.map { |group| group.id }}
             end
           end
         end
