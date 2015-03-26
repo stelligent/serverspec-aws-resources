@@ -27,7 +27,7 @@ module Serverspec
       def has_assume_role_policy_document?(expected_assume_role_policy_document)
         actual_policy_document = JSON.parse(URI.decode(content[:assume_role_policy_document]))
         puts actual_policy_document
-        actual_statements = actual_policy_document['Statements'].map { |statement| {effect: statement['Effect'], principal: statement['Principal'], action: statement['Action']}}
+        actual_statements = actual_policy_document['Statement'].map { |statement| {effect: statement['Effect'], principal: statement['Principal'], action: statement['Action']}}
         Set.new(actual_statements) == expected_assume_role_policy_document
       end
 
