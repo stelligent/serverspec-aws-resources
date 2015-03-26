@@ -34,8 +34,9 @@ module Serverspec
       end
 
       def has_block_device_mapping?(block_device_mapping)
-        puts "YO: #{content.block_device_mappings}"
-        content.block_device_mappings.include? block_device_mapping
+        puts "YO: #{content.block_device_mappings.to_a}"
+        content.block_device_mappings.to_a. each { |x| puts x }
+        content.block_device_mappings.to_a.include? block_device_mapping
       end
 
       def has_number_of_block_device_mappings?(number_of_mappings)
