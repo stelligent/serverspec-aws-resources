@@ -26,7 +26,7 @@ module Serverspec
         content.description == expected_description
       end
 
-      def has_retention_period?(expected_retention_period)
+      def has_retention_period_in_days?(expected_retention_period)
         content.retention_period.to_s == expected_retention_period
       end
 
