@@ -18,6 +18,7 @@ module Serverspec
       end
 
       def has_availability_zone_names?(availability_zone_names)
+        puts "fOO: #{content.availability_zone_names.class}"
         Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
       end
 
@@ -33,23 +34,23 @@ module Serverspec
         content.dns_name == dns_name
       end
 
-      def has_health_check_healthy_threshold(healthy_threshold)
+      def has_health_check_healthy_threshold?(healthy_threshold)
         content.health_check[:healthy_threshold] == healthy_threshold
       end
 
-      def has_health_check_unhealthy_threshold(unhealthy_threshold)
+      def has_health_check_unhealthy_threshold?(unhealthy_threshold)
         content.health_check[:unhealthy_threshold] == unhealthy_threshold
       end
 
-      def has_health_check_interval(interval)
+      def has_health_check_interval?(interval)
         content.health_check[:interval] == interval
       end
 
-      def has_health_check_timeout(timeout)
+      def has_health_check_timeout?(timeout)
         content.health_check[:timeout] == timeout
       end
 
-      def has_health_check_target(target)
+      def has_health_check_target?(target)
         content.health_check[:target] == target
       end
 
@@ -74,6 +75,10 @@ module Serverspec
           :instance_port => actual_listener.instance_port
         }
         actual_listener_map == expected_listener
+      end
+
+      def has_number_of_listeners?(number)
+        content.listeners.size == number
       end
 
       def content
