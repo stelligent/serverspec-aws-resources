@@ -34,11 +34,11 @@ module Serverspec
       end
 
       def has_block_device_mapping?(block_device_mapping)
-        puts "YO: #{availability_zone_names}"
+        puts "YO: #{content.block_device_mappings}"
         content.block_device_mappings.include? block_device_mapping
       end
 
-      def has_number_of_block_device_mappins?(number_of_mappings)
+      def has_number_of_block_device_mappings?(number_of_mappings)
         content.block_device_mappings.size == number_of_mappings
       end
 
