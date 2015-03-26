@@ -29,6 +29,10 @@ module Serverspec
       def has_retention_period?(expected_retention_period)
         content.retention_period.to_s == expected_retention_period
       end
+
+      def to_s
+        "SWF Domain: #{@domain_name}"
+      end
 		end
 
 		def swf_domain(domain_name)
