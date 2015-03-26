@@ -36,6 +36,7 @@ module Serverspec
       def has_block_device_mapping?(block_device_mapping)
         puts "YO: #{content.block_device_mappings.to_a}"
         content.block_device_mappings.to_a. each { |x| puts x }
+        puts "MOO: #{block_device_mapping}"
         content.block_device_mappings.to_a.include? block_device_mapping
       end
 
