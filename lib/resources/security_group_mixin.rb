@@ -49,7 +49,13 @@ module Serverspec
           end
         end
 
-        expected_rules_to_compare = expected_rules.map { |rule| {:port_range=>rule[:port_range], :protocol=>rule[:protocol], :groups=>Set.new(rule[:groups]) } }
+        expected_rules_to_compare = expected_rules.map do |rule|
+          if rule[:groups]
+            {:port_range=>rule[:port_range], :protocol=>rule[:protocol], :groups=>Set.new(rule[:groups]) } }
+          else
+            {:port_range=>rule[:port_range], :protocol=>rule[:protocol], :ip_ranges=>Set.new(rule[:ip_ranges]) } }
+          end
+        end
 
 
         actual_rules.should == Set.new(expected_rules_to_compare)
