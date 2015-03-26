@@ -65,7 +65,8 @@ module Serverspec
 
       def has_idle_timeout?(expected_idle_timeout)
         response = AWS::ELB::Client.new.describe_load_balancer_attributes(load_balancer_name: @elb_name)
-        response[:load_balancer_attributes][:connection_settings][:idle_timeout].to_s == expected_idle_timeout.to_s
+        puts response.data
+        response.data[:load_balancer_attributes][:connection_settings][:idle_timeout].to_s == expected_idle_timeout.to_s
       end
 
       def has_listener?(expected_listener)
