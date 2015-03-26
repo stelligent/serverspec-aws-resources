@@ -51,6 +51,10 @@ module Serverspec
         content.default_task_list.to_s.downcase == expected_default_task_list.to_s.downcase
       end
 
+      def has_default_task_start_to_close_timeout?(expected_default_task_start_to_close_timeout)
+        content.default_task_start_to_close_timeout.to_s.downcase == expected_default_task_start_to_close_timeout
+      end
+
       def to_s
         "SWF wf: #{@workflow_type_name},#{@workflow_type_version}"
       end
