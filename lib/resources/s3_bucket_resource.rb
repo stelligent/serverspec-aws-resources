@@ -24,9 +24,11 @@ module Serverspec
       end
 
       def has_logging?(target_bucket_name, prefix)
-        response = AWS::S3::Client::V20060301.new.get_bucket_logging(bucket_name: target_bucket_name)
-        puts response.data
-        false
+        puts "target: #{target_bucket_name}"
+        response = AWS::S3::Client.new.get_bucket_logging(bucket_name: target_bucket_name)
+        puts response
+        response.data[:logging_enabled][:target_bucket_name] == target_bucket_name and
+        response.data[:logging_enabled][:target_prefix] == prefix
       end
 
       # def has_notifications?(array_of_event_and_topic_pairs)
