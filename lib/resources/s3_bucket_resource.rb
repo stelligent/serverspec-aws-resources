@@ -24,9 +24,8 @@ module Serverspec
       end
 
       def has_logging?(target_bucket_name, prefix)
-        puts "target: #{target_bucket_name}"
         response = AWS::S3::Client.new.get_bucket_logging(bucket_name: @bucket_name)
-        puts response
+        puts response.data
         response.data[:logging_enabled][:target_bucket_name] == target_bucket_name and
         response.data[:logging_enabled][:target_prefix] == prefix
       end
