@@ -62,6 +62,7 @@ module Serverspec
       end
 
       def has_load_balancers?(load_balancer_names)
+        puts "#{@group_name} has load balancers: #{content.load_balancer_names.to_a}"
         Set.new(content.load_balancer_names.to_a) == Set.new(load_balancer_names)
       end
 
