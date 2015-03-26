@@ -52,6 +52,7 @@ module Serverspec
       end
 
       def has_default_task_start_to_close_timeout?(expected_default_task_start_to_close_timeout)
+        puts "task start to close: #{content.default_task_start_to_close_timeout.to_s.downcase}"
         content.default_task_start_to_close_timeout.to_s.downcase == expected_default_task_start_to_close_timeout
       end
 
