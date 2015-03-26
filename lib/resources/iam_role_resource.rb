@@ -12,7 +12,7 @@ module Serverspec
       end
 
       def content
-        iam.get_role(role_name: @role_name)[:role]
+        @iam.get_role(role_name: @role_name)[:role]
       end
 
       def has_policy?(policy_json)
