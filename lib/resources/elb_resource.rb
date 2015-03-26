@@ -78,6 +78,8 @@ module Serverspec
       end
 
       def has_number_of_listeners?(number)
+        puts "SIZE: #{content.listeners.enum.size}"
+        content.listeners.enum.each { |x| puts x }
         content.listeners.enum.size == number
       end
 
