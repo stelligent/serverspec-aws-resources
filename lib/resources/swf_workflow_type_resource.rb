@@ -48,7 +48,11 @@ module Serverspec
       end
 
       def has_default_task_list_name?(expected_default_task_list)
-        content.default_expected_default_task_list.to_s.downcase == expected_default_task_list.to_s.downcase
+        content.default_task_list.to_s.downcase == expected_default_task_list.to_s.downcase
+      end
+
+      def to_s
+        "SWF wf: #{@workflow_type_name},#{@workflow_type_version}"
       end
     end
 
