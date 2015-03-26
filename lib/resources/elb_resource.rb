@@ -64,7 +64,7 @@ module Serverspec
       end
 
       def has_listener?(expected_listener)
-        actual_listener = content.listeners[listener[:port]]
+        actual_listener = content.listeners[expected_listener[:port]]
         return false if actual_listener == nil
 
         acutal_listener_map = {
@@ -78,7 +78,7 @@ module Serverspec
       end
 
       def has_number_of_listeners?(number)
-        content.listeners.size == number
+        content.listeners.enum.size == number
       end
 
       def content
@@ -86,7 +86,7 @@ module Serverspec
       end
 
       def to_s
-        "Elastic Load Balancer: #{}"
+        "Elastic Load Balancer: #{@elb_name}"
       end
 
 
