@@ -58,6 +58,8 @@ module Serverspec
       end
 
       def has_availability_zone_names?(availability_zone_names)
+        puts "YO1: #{content.availability_zone_names.class}"
+        puts "YO2: #{availability_zone_names.class}"
         Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
       end
 
