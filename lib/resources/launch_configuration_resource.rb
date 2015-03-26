@@ -33,6 +33,15 @@ module Serverspec
         content.user_data == user_data
       end
 
+      def has_block_device_mapping?(block_device_mapping)
+        puts "YO: #{availability_zone_names}"
+        content.block_device_mappings.include? block_device_mapping
+      end
+
+      def has_number_of_block_device_mappins?(number_of_mappings)
+        content.block_device_mappings.size == number_of_mappings
+      end
+
       def to_s
         "launch configuration: #{@name}"
       end
