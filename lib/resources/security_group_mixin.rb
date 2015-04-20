@@ -40,22 +40,20 @@ module Serverspec
       def has_sg_rules(expected_rules) #&permissionw
         actual_rules = Set.new
         content.security_groups.each do |sg|
-          puts "SG: #{sg.class}"
-          puts "SG1: #{sg}"
           yield(sg).each do |perm|
             if perm.groups == []
-              actual_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :ip_ranges=>Set.new(perm.ip_ranges)}
+              actual_rules << {:port_range=>perm.port_range.to_s, :protocol=>perm.protocol, :ip_ranges=>Set.new(perm.ip_ranges)}
             else
-              actual_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :groups=>Set.new(perm.groups.map { |group| group.id })}
+              actual_rules << {:port_range=>perm.port_range.to_s, :protocol=>perm.protocol, :groups=>Set.new(perm.groups.map { |group| group.id })}
             end
           end
         end
 
         expected_rules_to_compare = expected_rules.map do |rule|
           if rule[:groups]
-            {:port_range=>rule[:port_range], :protocol=>rule[:protocol], :groups=>Set.new(rule[:groups]) }
+            {:port_range=>rule[:port_range].to_s, :protocol=>rule[:protocol], :groups=>Set.new(rule[:groups]) }
           else
-            {:port_range=>rule[:port_range], :protocol=>rule[:protocol], :ip_ranges=>Set.new(rule[:ip_ranges]) } 
+            {:port_range=>rule[:port_range].to_s, :protocol=>rule[:protocol], :ip_ranges=>Set.new(rule[:ip_ranges]) }
           end
         end
 
