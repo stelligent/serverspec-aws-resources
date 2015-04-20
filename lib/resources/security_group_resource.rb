@@ -17,19 +17,23 @@ module Serverspec
         found_group_name = nil
 
         AWS::EC2.new.security_groups.each do |group|
-          group.tags.to_h.each do |tag|
-            puts "TAG: #{tag}"
-            if tag[:key] == 'Name' and tag[:value] == @sg_tag_name_value
+          group.tags.to_h.each do |tag_name, tag_value|
+            puts "TAG: #{tag_name} -> #{tag_value}"
+            if tag_name == 'Name' and tag_value == @sg_tag_name_value
               found_group_name = group.name
             end
           end
         end
 
         if found_group_name == nil
-          raise "no match found for #{@group_name}"
+          raise "no match found for #{@sg_tag_name_value}"
         else
           AWS::EC2.new.security_groups[found_group_name]
         end
+      end
+
+      def to_s
+        @sg_tag_name_value
       end
     end
 
