@@ -32,7 +32,7 @@ module Serverspec
         puts az_array.size.inspect
         puts expected_number_of_availability_zones.class
         puts expected_number_of_availability_zones.inspect
-        az_array.size == expected_number_of_availability_zones
+        az_array.size.to_i == expected_number_of_availability_zones.to_i
         puts "END DEBUG"
       end
 
