@@ -1,11 +1,13 @@
 require 'aws-sdk'
 require 'serverspec'
 require 'set'
+require_relative 'security_group_mixin'
 
 module Serverspec
   module Type
 
     class ELB < Base
+      include SecurityGroups
 
       def initialize(elb_name)
         @elb_name = elb_name
