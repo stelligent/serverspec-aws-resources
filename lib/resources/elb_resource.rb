@@ -25,7 +25,7 @@ module Serverspec
       def has_number_availability_zones?(expected_number_of_availability_zones)
         cnt = 0
         actual_number_of_availability_zones = content.availability_zones.each { |az| cnt += 1 } 
-        actual_number_of_availability_zones == expected_number_of_availability_zones)
+        actual_number_of_availability_zones == expected_number_of_availability_zones
       end
 
       def has_subnet_ids?(subnet_ids)
