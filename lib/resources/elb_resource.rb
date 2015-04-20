@@ -73,7 +73,7 @@ module Serverspec
         actual_listener = content.listeners[expected_listener[:port]]
         return false if actual_listener == nil
 
-        acutal_listener_map = {
+        actual_listener_map = {
           :server_certificate => actual_listener.server_certificate.to_s,
           :port => actual_listener.port,
           :protocol => actual_listener.protocol,
