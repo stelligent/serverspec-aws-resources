@@ -40,6 +40,8 @@ module Serverspec
       def has_sg_rules(expected_rules) #&permissionw
         actual_rules = Set.new
         content.security_groups.each do |sg|
+          puts "SG: #{sg.class}"
+          puts "SG1: #{sg}"
           yield(sg).each do |perm|
             if perm.groups == []
               actual_rules << {:port_range=>perm.port_range, :protocol=>perm.protocol, :ip_ranges=>Set.new(perm.ip_ranges)}
