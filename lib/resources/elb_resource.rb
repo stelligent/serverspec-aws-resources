@@ -29,6 +29,14 @@ module Serverspec
         end
         az_array.size == expected_number_of_availability_zones
       end
+      
+      def has_number_of_security_groups?(expected_number_of_security_groups)
+        sg_array = []
+        content.security_groups.each do |sg| 
+          sg_array << sg
+        end
+        sg_array.size == expected_number_of_security_groups
+      end
 
       def has_subnet_ids?(subnet_ids)
         Set.new(content.subnet_ids) == Set.new(subnet_ids)
