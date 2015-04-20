@@ -23,9 +23,9 @@ module Serverspec
       end
       
       def has_number_availability_zones?(expected_number_of_availability_zones)
-        cnt = 0
-        content.availability_zones.each { |az| cnt += 1 } 
-        cnt == expected_number_of_availability_zones
+        az_array = []
+        content.availability_zones.each { |az| az_array << az } 
+        az_array.size == expected_number_of_availability_zones
       end
 
       def has_subnet_ids?(subnet_ids)
