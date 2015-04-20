@@ -54,6 +54,10 @@ module Serverspec
         content.health_check[:target] == target
       end
 
+      def has_lb_cookie_stickiness_policy?
+        content.lb_cookie_stickiness_policies.size == 1
+      end
+      
       def has_lb_cookie_stickiness_policy_cookie_name?(name)
         content.lb_cookie_stickiness_policies[name]
       end
