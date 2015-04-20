@@ -74,13 +74,12 @@ module Serverspec
         return false if actual_listener == nil
 
         actual_listener_map = {
-          :server_certificate => actual_listener.server_certificate.to_s,
           :port => actual_listener.port,
           :protocol => actual_listener.protocol,
           :instance_protocol => actual_listener.instance_protocol,
           :instance_port => actual_listener.instance_port
         }
-        puts actual_listener_map
+        
         actual_listener_map == expected_listener
       end
 
