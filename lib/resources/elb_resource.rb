@@ -21,6 +21,12 @@ module Serverspec
         puts "fOO: #{content.availability_zone_names.class}"
         Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
       end
+      
+      def has_number_availability_zones?(expected_number_of_availability_zones)
+        cnt = 0
+        actual_number_of_availability_zones = content.availability_zones.each { |az| cnt += 1 } 
+        actual_number_of_availability_zones == expected_number_of_availability_zones)
+      end
 
       def has_subnet_ids?(subnet_ids)
         Set.new(content.subnet_ids) == Set.new(subnet_ids)
