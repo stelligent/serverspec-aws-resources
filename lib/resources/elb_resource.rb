@@ -23,11 +23,11 @@ module Serverspec
       end
       
       def has_number_availability_zones?(expected_number_of_availability_zones)
+        puts "START DEBUG"
         az_array = []
         content.availability_zones.each do |az| 
           az_array << az
         end
-        puts "START DEBUG"
         puts az_array.size
         puts az_array.size.inspect
         puts expected_number_of_availability_zones
