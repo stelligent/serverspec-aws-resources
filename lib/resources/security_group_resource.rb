@@ -30,11 +30,11 @@ module Serverspec
           AWS::EC2.new.security_groups[found_group_name]
         end
       end
+    end
 
-      #this is how the resource is called out in a spec
-      def security_group(sg_tag_name_value)
-        SecurityGroup.new(sg_tag_name_value)
-      end
+    #this is how the resource is called out in a spec
+    def security_group(sg_tag_name_value)
+      SecurityGroup.new(sg_tag_name_value)
     end
   end
 end
