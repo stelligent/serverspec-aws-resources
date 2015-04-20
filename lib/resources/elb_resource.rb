@@ -80,6 +80,9 @@ module Serverspec
           :instance_port => actual_listener.instance_port
         }
         
+        puts expected_listener
+        puts actual_listener_map
+        
         actual_listener_map == expected_listener
       end
 
