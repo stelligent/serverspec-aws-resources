@@ -18,6 +18,7 @@ module Serverspec
 
         AWS::EC2.new.security_groups.each do |group|
           group.tags.each do |tag|
+            puts "TAG: #{tag}"
             if tag[:key] == 'Name' and tag[:value] == @sg_tag_name_value
               found_group_name = group.name
             end
