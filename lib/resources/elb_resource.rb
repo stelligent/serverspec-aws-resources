@@ -18,6 +18,18 @@ module Serverspec
       def has_scheme?(scheme)
         content.scheme == scheme
       end
+      
+    def has_connection_draining_enabled?
+        AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
+        actual_connection_draining_enabled = response.data[:load_balancer_attributes][:connection_draining][:enabled]
+        actual_connection_draining_enabled == false
+    end
+    
+    def has_cross_zone_load_balancing_enabled?
+        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
+        actual_cross_zone_load_balancing_enabled = response.data[:load_balancer_attributes][:cross_zone_load_balancing][:enabled]
+        actual_cross_zone_load_balancing_enabled == false
+    end
 
       def has_availability_zone_names?(availability_zone_names)
         puts "fOO: #{content.availability_zone_names.class}"
