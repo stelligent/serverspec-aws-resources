@@ -15,11 +15,17 @@ module Serverspec
       end
 
       def content
+        sg_container = Object.new
         if @sg_id.nil?
-          find_sg_by_name_tag
+          def sg_container.security_groups
+            [find_sg_by_name_tag]
+          end
         else
-          AWS::EC2.new.security_groups[@sg_id]
+          def sg_container.security_groups
+            [AWS::EC2.new.security_groups[@sg_id]]
+          end
         end
+        sg_container
       end
 
       def to_s
