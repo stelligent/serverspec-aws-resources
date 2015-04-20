@@ -25,6 +25,10 @@ module Serverspec
       def has_number_availability_zones?(expected_number_of_availability_zones)
         az_array = []
         content.availability_zones.each { |az| az_array << az } 
+        puts array.size
+        puts array.size.inspect
+        puts expected_number_of_availability_zones
+        puts expected_number_of_availability_zones.inspect
         az_array.size == expected_number_of_availability_zones
       end
 
