@@ -23,7 +23,7 @@ module Serverspec
       end
 
       def to_s
-        @sg_tag_name_value
+        @sg_tag_name_value.nil? ? @sg_id : @sg_tag_name_value
       end
 
       private
