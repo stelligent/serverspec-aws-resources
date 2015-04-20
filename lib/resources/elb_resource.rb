@@ -80,6 +80,7 @@ module Serverspec
           :instance_protocol => actual_listener.instance_protocol,
           :instance_port => actual_listener.instance_port
         }
+        puts actual_listener_map
         actual_listener_map == expected_listener
       end
 
