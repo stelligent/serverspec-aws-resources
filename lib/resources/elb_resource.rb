@@ -22,7 +22,7 @@ module Serverspec
         Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
       end
       
-      def has_number_availability_zones?(expected_number_of_availability_zones)
+      def has_number_of_availability_zones?(expected_number_of_availability_zones)
         puts "START DEBUG"
         az_array = []
         content.availability_zones.each do |az| 
