@@ -55,13 +55,17 @@ module Serverspec
       end
 
       def has_lb_cookie_stickiness_policy?
-        content.lb_cookie_stickiness_policies.size == 1
+        !content.policy_descriptions[:lb_cookie_stickiness_policies].empty?
       end
       
       def has_lb_cookie_stickiness_policy_cookie_name?(name)
         content.lb_cookie_stickiness_policies[name]
       end
 
+      def has_app_cookie_stickiness_policy?
+        !content.policy_descriptions[:app_cookie_stickiness_policies].empty?
+      end
+      
       #cookie_name?????
       def has_app_cookie_stickiness_policy?(name)
         content.app_cookie_stickiness_policies[name]
