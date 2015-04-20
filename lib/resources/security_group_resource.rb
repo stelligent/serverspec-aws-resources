@@ -39,7 +39,7 @@ module Serverspec
           end
         end
 
-        if found_group_name == nil
+        if found_group_id == nil
           raise "no match found for #{@sg_tag_name_value}"
         else
           AWS::EC2.new.security_groups[found_group_id]
