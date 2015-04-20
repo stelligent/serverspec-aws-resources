@@ -28,9 +28,9 @@ module Serverspec
         content.availability_zones.each do |az| 
           az_array << az
         end
-        puts az_array.size
+        puts az_array.size.class
         puts az_array.size.inspect
-        puts expected_number_of_availability_zones
+        puts expected_number_of_availability_zones.class
         puts expected_number_of_availability_zones.inspect
         az_array.size == expected_number_of_availability_zones
         puts "END DEBUG"
