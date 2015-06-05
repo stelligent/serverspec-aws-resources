@@ -8,5 +8,5 @@ Gem::Specification.new do |s|
   s.email       = 'eric.kascic@stelligent.com'
   s.files       =  Dir['lib/*.rb'] + Dir['lib/resources/*.rb']
 
-  s.add_runtime_dependency 'aws-sdk', '1.61.0'
+  s.add_runtime_dependency 'aws-sdk', '>= 1.61.0'
 end
