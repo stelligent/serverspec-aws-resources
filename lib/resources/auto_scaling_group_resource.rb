@@ -15,6 +15,7 @@ module Serverspec
         found_group_name = nil
 
         AWS::AutoScaling.new.groups.each do |group|
+          next unless group.exists?
           group.tags.each do |tag|
             if tag[:key] == 'Name' and tag[:value] == @group_name
               found_group_name = group.name
