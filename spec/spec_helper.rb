@@ -1,0 +1,5 @@
+require 'aws-sdk'
+require 'rspec'
+require 'serverspec'
+require 'resources/s3_bucket_resource'
+require 'json'
