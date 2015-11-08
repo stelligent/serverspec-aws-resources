@@ -24,7 +24,9 @@ module Serverspec
       # Likely don't want anyone outside of this object to call this???
       def content
         s3 = Aws::S3::Resource.new
-        s3.bucket @bucket_name
+        bucket = s3.bucket @bucket_name
+        fail "bucket with name #{@bucket_name} not found" if bucket.nil?
+        bucket
       end
 
       ##
@@ -49,7 +51,7 @@ module Serverspec
       ##
       # Is access logging enabled for this bucket?
       #
-      def logging?
+      def has_logging?
         logging_enabled = content.logging.logging_enabled
         not logging_enabled.nil?
       end
@@ -118,6 +120,8 @@ module Serverspec
           end
         end
 
+        #this feeds the diff message about what is off...
+        # we ultimately want hash-hash comparison so show string version of that hash
         def inspect
           JSON.parse(@actual_policy_string).to_s
         end
