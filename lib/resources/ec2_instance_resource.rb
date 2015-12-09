@@ -141,6 +141,20 @@ module Serverspec
         content.kernel_id == kernel_id
       end
 
+      def has_public_subnet?
+        instance_subnet = AWS::EC2.new.subnets[content.subnet_id]
+        instance_subnet.route_table.routes.each do |route|
+          if !route.internet_gateway.nil? && route.internet_gateway.exists?
+            return true
+          end
+        end
+        false
+      end
+
+      def public_ip_address
+        content.public_ip_address
+      end
+
       def to_s
         "EC2 instance: #{}"
       end
