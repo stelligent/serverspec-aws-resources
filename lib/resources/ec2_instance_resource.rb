@@ -155,6 +155,10 @@ module Serverspec
         content.public_ip_address
       end
 
+      def subnet_id
+        content.subnet_id
+      end
+
       def to_s
         "EC2 instance: #{}"
       end
