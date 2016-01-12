@@ -1,4 +1,4 @@
-require 'aws-sdk'
+require 'aws-sdk-v1'
 require 'serverspec'
 require_relative 'security_group_mixin'
 
