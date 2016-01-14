@@ -28,7 +28,7 @@ module Serverspec
       end
 
       def multi_region_trail?
-        content[:is_multi_region_trail] == "true"
+        content[:is_multi_region_trail] == true
       end
 
       def including_global_service_events?
