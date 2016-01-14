@@ -13,7 +13,7 @@ module Serverspec
       end
 
       def content
-        AWS::EC2.new.instances[@instance_id]
+        Aws::EC2::Instance.new(instance_id) #TODO: FIGURE OUT HOW TO HANDLE REGION
       end
 
       #hmmm is serverspec already messing with method_missing? maybe just fwd anything to ec2instance?
@@ -26,7 +26,7 @@ module Serverspec
       end
 
       def is_api_termination_disabled?
-        content.api_termination_disabled?
+        content.describe_attribute({attribute: 'disableApiTermination'}).disable_api_termination.value
       end
 
       def is_x86_64_architecture?
@@ -46,59 +46,68 @@ module Serverspec
       end
 
       def is_ebs_optimized?
-        content.ebs_optimized?
+        content.ebs_optimized
       end
 
       def is_xen_hypervisor?
-        content.hypervisor == :xen
+        content.hypervisor == 'xen'
       end
 
       def is_oracle_vm_hypervisor?
-        content.hypervisor == :ovm
+        content.hypervisor == 'ovm'
       end
 
+      def shutdown_behavior
+        content.describe_attribute({attribute: 'instanceInitiatedShutdownBehavior'}).instance_initiated_shutdown_behavior.value
+      end
+      
       def is_stop_shutdown_behavior?
-        content.instance_initiated_shutdown_behavior == 'stop'
+        shutdown_behavior == 'stop'
       end
 
       def is_termination_shutdown_behavior?
-        content.instance_initiated_shutdown_behavior == 'terminate'
+        shutdown_behavior == 'terminate'
       end
 
       def is_monitoring_disabled?
-        content.monitoring == :disabled
+        content.monitoring.state == 'disabled'
       end
 
       def is_monitoring_enabled?
-        content.monitoring == :enabled
+        content.monitoring.state == 'enabled'
       end
 
       def is_monitoring_pending?
-        content.monitoring == :pending
+        content.monitoring.state == 'pending'
+      end
+
+      def is_windows_platform?
+        content.platform == "Windows"
       end
 
       # def method_missing(sym, *args, &block)
       #   @ec2_instance.send sym, *args, &block
       # end
 
-      def has_owner_id(owner_id)
-        content.owner_id == owner_id
-      end
-
-      def has_platform(platform)
-        content.platform == platform
-      end
+      # TODO: FIND OUT HOW TO RETRIEVE OWNER_ID in Aws-Sdk-V2
+      # def has_owner_id(owner_id)
+      #   content.owner_id == owner_id
+      # end
 
       def has_iam_instance_profile_arn?(iam_instance_profile_arn)
-        content.iam_instance_profile_arn == iam_instance_profile_arn
+        content.iam_instance_profile.arn == iam_instance_profile_arn
       end
 
       def has_iam_instance_profile_id?(iam_instance_profile_id)
-        content.iam_instance_profile_id == iam_instance_profile_id
+        content.iam_instance_profile.id == iam_instance_profile_id
       end
 
-      def has_dns_name?(dns_name)
-        content.dns_name == dns_name
+      def has_private_dns_name?(private_dns_name)
+        content.private_dns_name == private_dns_name
+      end
+
+      def has_public_dns_name?(public_dns_name)
+        content.pubic_dns_name == public_dns_name
       end
 
       def has_ami_launch_index?(ami_launch_index)
@@ -106,7 +115,7 @@ module Serverspec
       end
 
       def has_user_data?(user_data)
-        content.user_data == user_data
+        describe_attribute({attribute: 'userData'}).user_data.value == user_data
       end
 
       def has_key_name?(key_name)
@@ -126,11 +135,11 @@ module Serverspec
       end
 
       def has_api_termination_disabled?
-        content.api_termination_disabled?
+        content.describe_attribute({attribute: 'disableApiTermination'}).disable_api_termination.value
       end
 
       def has_elastic_ip?
-        content.has_elastic_ip?
+        not content.public_ip_address.empty?
       end
 
       def has_public_ip?(public_ip_address)
@@ -160,7 +169,7 @@ module Serverspec
       end
 
       def to_s
-        "EC2 instance: #{}"
+        "EC2 instance: #{instance_id}"
       end
     end
 
