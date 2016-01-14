@@ -6,16 +6,17 @@ module Serverspec
     
     class CloudTrail < Base
       
-      def initialize(trail_name)
+      def initialize(trail_name, region)
         @trail_name = trail_name
+        @region = region
       end
       
       def content
-        @trail ||= Aws::CloudTrail::Client.new.describe_trails[:trail_list].find {|trail| trail[:name] == @trail_name }
+        @trail ||= Aws::CloudTrail::Client.new({region: @region}).describe_trails[:trail_list].find {|trail| trail[:name] == @trail_name }
       end
 
       def status
-        @trail_status ||= Aws::CloudTrail::Client.new.get_trail_status({name: @trail_name})
+        @trail_status ||= Aws::CloudTrail::Client.new({region: @region}).get_trail_status({name: @trail_name})
       end
 
       def valid?
@@ -39,8 +40,8 @@ module Serverspec
       end
     end
     
-    def cloudtrail_trail(trail_name)
-      CloudTrail.new(trail_name)
+    def cloudtrail_trail(trail_name, region='us-east-1')
+      CloudTrail.new(trail_name, region)
     end
   end
 end

@@ -8,12 +8,13 @@ module Serverspec
     class EC2Instance < Base
       include SecurityGroups
 
-      def initialize(instance_id)
+      def initialize(instance_id, region)
         @instance_id = instance_id
+        @region = region
       end
 
       def content
-        Aws::EC2::Instance.new(instance_id) #TODO: FIGURE OUT HOW TO HANDLE REGION
+        Aws::EC2::Instance.new(instance_id, region: @region)
       end
 
       #hmmm is serverspec already messing with method_missing? maybe just fwd anything to ec2instance?
@@ -174,8 +175,8 @@ module Serverspec
     end
 
     #this is how the resource is called out in a spec
-    def ec2_instance(instance_id)
-      EC2Instance.new(instance_id)
+    def ec2_instance(instance_id, region='us-east-1')
+      EC2Instance.new(instance_id, region)
     end
 
   end
