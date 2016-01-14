@@ -24,16 +24,16 @@ module Serverspec
               protocol: entry.protocol,
               port_range: entry.port_range,
               cidr_block: entry.cidr_block,
-              action: entry.action
+              action: entry.rule_action
             }
           end
         end
 
         expected_rules_arr = [
-          {rule_number: 100, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :allow},
-          {rule_number: 32767,  protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :deny},
-          {rule_number: 100, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :allow},
-          {rule_number: 32767, protocol: -1, port_range: nil, cidr_block: '0.0.0.0/0', action: :deny}
+          {rule_number: 100, protocol: "-1", port_range: nil, cidr_block: '0.0.0.0/0', action: "allow"},
+          {rule_number: 32767,  protocol: "-1", port_range: nil, cidr_block: '0.0.0.0/0', action: "deny"},
+          {rule_number: 100, protocol: "-1", port_range: nil, cidr_block: '0.0.0.0/0', action: "allow"},
+          {rule_number: 32767, protocol: "-1", port_range: nil, cidr_block: '0.0.0.0/0', action: "deny"}
         ]
 
         Set.new(actual_rules_arr) == Set.new(expected_rules_arr)
@@ -54,9 +54,13 @@ module Serverspec
       end
 
       def content
-        @vpc = AWS::EC2.new.vpcs[@vpc_id]
+        @vpc = Aws::EC2::Vpc.new(vpc_id)
         raise "#{@vpc_id} does not exist" unless @vpc.exists?
         @vpc
+      end
+
+      def ec2_client
+        Aws::EC2::Client.new  #TODO: FIGURE OUT HOW TO HANDLE REGION
       end
 
       def to_s
@@ -72,11 +76,11 @@ module Serverspec
       end
 
       def available?
-        content.state == :available
+        content.state == "available"
       end
 
       def pending?
-        content.state == :pending
+        content.state == "pending"
       end
 
       def cidr_block
@@ -84,20 +88,20 @@ module Serverspec
       end
 
       def attached_to_an_internet_gateway?
-        not content.internet_gateway.nil?
+        not content.internet_gateways.first.nil?
       end
 
       def attached_to_an_virtual_private_gateway?
-        not content.vpn_gateway.nil?
+        not ec2_client.describe_vpn_gateways.vpn_gateways.empty?
       end
 
       def virtual_private_gateway
         raise 'there is no virtual private gateway attached to vpc' unless attached_to_an_virtual_private_gateway?
-        VPNGateway.new content.vpn_gateway
+        VPNGateway.new ec2_client.describe_vpn_gateways.vpn_gateways.first.vpn_gateway_id
       end
 
       def dhcp_options
-        content.dhcp_options.configuration
+        content.dhcp_options.dhcp_configurations
       end
 
       def size
@@ -124,19 +128,16 @@ module Serverspec
         Subnets.new compute_private_subnets
       end
 
-      def nats
-        nat_instances.map { |nat| EC2Instance.new(nat.id) }
+      #TODO: FIND A BETTER WAY TO EXPRESS THIS
+      def nat_gateways
+        default_routes = content.route_tables.collect {|rt| rt.routes.select {|r| r.destination_cidr_block=="0.0.0.0/0" }}
+        default_routes.reject! {|route| route == []}
+        default_routes.collect {|r| r[0].nat_gateway_id}.compact
       end
 
       def public_ec2_instances
         public_instances  = compute_public_instances
         public_instances.map { |instance| EC2Instance.new(instance.id) }
-      end
-
-      def public_non_nat_ec2_instances
-        public_instances  = compute_public_instances
-        result =  public_instances.select { |instance| instance unless nats_ids.include? instance.id }
-        result.map { |instance| EC2Instance.new(instance.id) }
       end
 
       private
@@ -173,6 +174,7 @@ module Serverspec
 
       #anything that isnt natted or igw
       #could be only local to vpc, or connected via a peering or vpn
+      #TODO:  Not sure this is working as intended.  Seems to only return the first private subnet found.
       def compute_private_subnets
         private_subnet_ids = subnet_ids(compute_subnets) - subnet_ids(compute_public_subnets) - subnet_ids(compute_natted_subnets)
         private_subnets = []
@@ -186,41 +188,30 @@ module Serverspec
 
       def has_route_to_igw(subnet)
         route_table_for_subnet(subnet).routes.each do |route|
-          if not route.internet_gateway.nil? and route.internet_gateway.exists?
+          if not route.gateway_id.nil? and route.gateway_id.start_with? 'igw'
             return true
           end
         end
         false
       end
 
+      #TODO: Makes the assumption that you are using the a managed NAT Gateway
       def has_route_to_nat(subnet)
         route_table_for_subnet(subnet).routes.each do |route|
-          unless route.instance.nil?
-            return true if nats_ids.include? route.instance.id
-          end
+            return true unless route.nat_gateway_id.nil?
         end
         false
       end
 
       def route_table_for_subnet(subnet)
-
         content.route_tables.each do |route_table|
-          route_table.subnets.each do |subnet_iter|
-            if subnet_iter.subnet_id == subnet.subnet_id
-              return route_table
+          route_table.associations.each do |association|
+            unless association.subnet.nil?
+              return route_table if association.subnet.id == subnet.id
             end
           end
         end
         raise 'should never fall through to here since all subnets have a route table'
-      end
-
-      def nat_instances
-        content.instances.select { |instance| instance.image.name.match /^amzn-ami-vpc-nat.*/ }
-      end
-
-
-      def nats_ids
-        nat_instances.map { |instance| instance.id }
       end
 
     end
