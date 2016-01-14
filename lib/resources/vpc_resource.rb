@@ -55,7 +55,7 @@ module Serverspec
       end
 
       def content
-        @vpc = Aws::EC2::Vpc.new(vpc_id, region: @region)
+        @vpc = Aws::EC2::Vpc.new(@vpc_id, region: @region)
         raise "#{@vpc_id} does not exist or not available" unless @vpc.state == 'available'
         @vpc
       end
