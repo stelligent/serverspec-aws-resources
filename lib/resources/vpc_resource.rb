@@ -48,19 +48,20 @@ module Serverspec
 
     class VPC < Base
 
-      def initialize(vpc_id)
+      def initialize(vpc_id, region)
         raise 'must set a vpc_id' if vpc_id.nil?
         @vpc_id = vpc_id
+        @region = region
       end
 
       def content
-        @vpc = Aws::EC2::Vpc.new(vpc_id)
-        raise "#{@vpc_id} does not exist" unless @vpc.exists?
+        @vpc = Aws::EC2::Vpc.new(vpc_id, region: @region)
+        raise "#{@vpc_id} does not exist or not available" unless @vpc.state == 'available'
         @vpc
       end
 
       def ec2_client
-        Aws::EC2::Client.new  #TODO: FIGURE OUT HOW TO HANDLE REGION
+        Aws::EC2::Client.new(region: @region)
       end
 
       def to_s
@@ -217,8 +218,8 @@ module Serverspec
     end
 
     #this is how the resource is called out in a spec
-    def vpc(vpc_id)
-      VPC.new(vpc_id)
+    def vpc(vpc_id, region='us-east-1')
+      VPC.new(vpc_id, region)
     end
   end
 end
