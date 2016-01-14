@@ -14,7 +14,7 @@ module Serverspec
       end
 
       def content
-        Aws::EC2::Instance.new(instance_id, region: @region)
+        Aws::EC2::Instance.new(@instance_id, region: @region)
       end
 
       #hmmm is serverspec already messing with method_missing? maybe just fwd anything to ec2instance?
