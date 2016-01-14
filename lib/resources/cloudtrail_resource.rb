@@ -1,4 +1,4 @@
-require 'aws-sdk-v1'
+require 'aws-sdk'
 require 'serverspec'
 
 module Serverspec
@@ -11,11 +11,11 @@ module Serverspec
       end
       
       def content
-        @trail ||= AWS::CloudTrail.new.client.describe_trails[:trail_list].find {|trail| trail[:name] == @trail_name }
+        @trail ||= Aws::CloudTrail::Client.new.describe_trails[:trail_list].find {|trail| trail[:name] == @trail_name }
       end
 
       def status
-        @trail_status ||= AWS::CloudTrail.new.client.get_trail_status({name: @trail_name})
+        @trail_status ||= Aws::CloudTrail::Client.new.get_trail_status({name: @trail_name})
       end
 
       def valid?
