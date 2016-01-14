@@ -1,4 +1,4 @@
-require 'aws-sdk-v1'
+require 'aws-sdk'
 require 'serverspec'
 
 require_relative 'vpn_gateway_resource'
