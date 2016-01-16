@@ -91,12 +91,20 @@ module Serverspec
       @client.stub_responses(:describe_load_balancer_attributes, stub_elb_attribs)
     end
 
+      def in_vpc?(vpc_id)
+        content.vpc_id == vpc_id
+      end
+
       def has_scheme?(scheme)
         content.scheme == scheme.downcase
       end
       
       def has_connection_draining_enabled?
         @elb_attribs.connection_draining.enabled == true
+      end
+
+      def has_connection_draining_timeout_set_to?(timeout)
+        @elb_attribs.connection_draining.timeout == timeout
       end
     
       def has_cross_zone_load_balancing_enabled?
@@ -210,7 +218,9 @@ module Serverspec
         content.listener_descriptions.count == number
       end
 
-      #TODO: Include Methods to check ELB security groups
+      def has_security_groups?(security_groups)
+        content.security_groups == security_groups
+      end
 
       def content
         @elb
