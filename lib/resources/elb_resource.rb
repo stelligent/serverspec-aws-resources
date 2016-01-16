@@ -19,7 +19,7 @@ module Serverspec
 
 
       def has_scheme?(scheme)
-        content.scheme == scheme
+        content.scheme == scheme.downcase
       end
       
       def has_connection_draining_enabled?
@@ -36,6 +36,22 @@ module Serverspec
       
       def has_number_of_availability_zones?(expected_number_of_availability_zones)
         content.availability_zones.count == expected_number_of_availability_zones
+      end
+
+      def has_one_availability_zone?
+        content.availability_zones.count == 1
+      end
+
+      def has_two_availability_zones?
+        content.availability_zones.count == 2
+      end
+
+      def has_three_availability_zones?
+        content.availability_zones.count == 3
+      end
+
+      def has_four_availability_zones?
+        content.availability_zones.count == 4
       end
       
       def has_number_of_security_groups?(expected_number_of_security_groups)
@@ -103,7 +119,7 @@ module Serverspec
       end
 
       def has_listener?(expected_listener)
-        listener_description = content.listener_descriptions.find { |desc| desc.listener.load_balancer_port == expected_listener[:port] }
+        listener_description = content.listener_descriptions.find { |desc| desc.listener.load_balancer_port.to_s == expected_listener[:port] }
         return false if listener_description == nil
         actual_listener = listener_description.listener
 
