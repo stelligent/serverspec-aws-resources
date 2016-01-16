@@ -9,14 +9,87 @@ module Serverspec
     class ELB < Base
       include SecurityGroups
 
-      def initialize(elb_name, region)
+      def initialize(elb_name, region, stub_responses)
         @elb_name = elb_name
         @region = region
-        client = Aws::ElasticLoadBalancing::Client.new(region: @region)
-        @elb = client.describe_load_balancers({load_balancer_names: [elb_name]}).load_balancer_descriptions[0]
-        @elb_attribs = client.describe_load_balancer_attributes({load_balancer_name: elb_name}).load_balancer_attributes
+        @client = Aws::ElasticLoadBalancing::Client.new(region: @region, stub_responses: stub_responses)
+        set_up_stubs if stub_responses
+        @elb = @client.describe_load_balancers({load_balancer_names: [elb_name]}).load_balancer_descriptions[0]
+        @elb_attribs = @client.describe_load_balancer_attributes({load_balancer_name: elb_name}).load_balancer_attributes
       end
 
+      def set_up_stubs
+        stub_elb_description = {
+          :load_balancer_descriptions=>[{
+            :load_balancer_name=>"myStubbyElb",
+            :dns_name=>"myStubbyElb-123456789.us-east-1.elb.stubamazonaws.com",
+            :canonical_hosted_zone_name=>"myStubbyElb-123456789.us-east-1.elb.stubamazonaws.com",
+            :canonical_hosted_zone_name_id=>"A1B2C3D4E5F6E7",
+            :listener_descriptions=>[
+              {
+              :listener=>{
+                :protocol=>"HTTP",
+                :load_balancer_port=>80,
+                :instance_protocol=>"HTTP",
+                :instance_port=>80},
+              :policy_names=>[]
+              },
+              {
+              :listener=>{
+                :protocol=>"HTTPS",
+                :load_balancer_port=>443,
+                :instance_protocol=>"HTTPS",
+                :instance_port=>443,
+                :ssl_certificate_id=>"arn:aws:iam::123456789012:server-certificate/stubby-test-cert"
+              }, :policy_names=>["AWSConsole-SSLNegotiationPolicy-myStubbyElb-123456789012"]
+              }
+            ], 
+            :policies=>{
+              :app_cookie_stickiness_policies=>[],
+              :lb_cookie_stickiness_policies=>[],
+              :other_policies=>["AWSConsole-SSLNegotiationPolicy-myElb-123456789012", "ELBSecurityPolicy-2015-05"]
+            },
+            :backend_server_descriptions=>[],
+            :availability_zones=>["us-east-1a", "us-east-1b", "us-east-1c"],
+            :subnets=>["subnet-1a2b3c4d", "subnet-2b3c4d1a", "subnet-3c4d1a2b"],
+            :vpc_id=>"vpc-1234abcd",
+            :instances=>[],
+            :health_check=>{
+              :target=>"HTTP:80/index.html",
+              :interval=>30,
+              :timeout=>5,
+              :unhealthy_threshold=>2,
+              :healthy_threshold=>10
+            },
+            :source_security_group=>{
+              :owner_alias=>"123456789012",
+              :group_name=>"default"
+            },
+            :security_groups=>["sg-1a2b3c4d", "sg-2b3c4d1a"],
+            :created_time=>Time.now,
+            :scheme=>"internet-facing"
+          }]
+        }
+        @client.stub_responses(:describe_load_balancers, stub_elb_description)
+
+      stub_elb_attribs = {
+        :load_balancer_attributes=>{
+          :cross_zone_load_balancing=>{
+            :enabled=>true
+          },
+          :access_log=>{
+            :enabled=>false
+          },
+          :connection_draining=>{
+            :enabled=>true, :timeout=>300
+          },
+          :connection_settings=>{
+            :idle_timeout=>60
+          }
+        }
+      }
+      @client.stub_responses(:describe_load_balancer_attributes, stub_elb_attribs)
+    end
 
       def has_scheme?(scheme)
         content.scheme == scheme.downcase
@@ -150,8 +223,8 @@ module Serverspec
     end
 
     #this is how the resource is called out in a spec
-    def elb(elb_name, region='us-east-1')
-      ELB.new(elb_name, region)
+    def elb(elb_name, region='us-east-1', stub_responses=false)
+      ELB.new(elb_name, region, stub_responses)
     end
 
   end
