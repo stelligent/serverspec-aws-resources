@@ -1,4 +1,4 @@
-require 'aws-sdk-v1'
+require 'aws-sdk'
 require 'serverspec'
 require 'set'
 require_relative 'security_group_mixin'
@@ -9,9 +9,12 @@ module Serverspec
     class ELB < Base
       include SecurityGroups
 
-      def initialize(elb_name)
+      def initialize(elb_name, region)
         @elb_name = elb_name
-        @elb = AWS::ELB.new.load_balancers[elb_name]
+        @region = region
+        client = Aws::ElasticLoadBalancing::Client.new(region: @region)
+        @elb = client.describe_load_balancers({load_balancer_names: [elb_name]}).load_balancer_descriptions[0]
+        @elb_attribs = client.describe_load_balancer_attributes({load_balancer_name: elb_name}).load_balancer_attributes
       end
 
 
@@ -19,41 +22,28 @@ module Serverspec
         content.scheme == scheme
       end
       
-    def has_connection_draining_enabled?
-        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
-        actual_connection_draining_enabled = response.data[:load_balancer_attributes][:connection_draining][:enabled]
-        actual_connection_draining_enabled == true
-    end
+      def has_connection_draining_enabled?
+        @elb_attribs.connection_draining.enabled == true
+      end
     
-    def has_cross_zone_load_balancing_enabled?
-        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
-        actual_cross_zone_load_balancing_enabled = response.data[:load_balancer_attributes][:cross_zone_load_balancing][:enabled]
-        actual_cross_zone_load_balancing_enabled == true
-    end
+      def has_cross_zone_load_balancing_enabled?
+        @elb_attribs.cross_zone_load_balancing.enabled == true
+      end
 
-      def has_availability_zone_names?(availability_zone_names)
-        puts "fOO: #{content.availability_zone_names.class}"
-        Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
+      def has_availability_zones?(availability_zones)
+        content.availability_zones == availability_zones
       end
       
       def has_number_of_availability_zones?(expected_number_of_availability_zones)
-        az_array = []
-        content.availability_zones.each do |az| 
-          az_array << az
-        end
-        az_array.size == expected_number_of_availability_zones
+        content.availability_zones.count == expected_number_of_availability_zones
       end
       
       def has_number_of_security_groups?(expected_number_of_security_groups)
-        sg_array = []
-        content.security_groups.each do |sg| 
-          sg_array << sg
-        end
-        sg_array.size == expected_number_of_security_groups
+        content.security_groups.count == expected_number_of_security_groups
       end
 
-      def has_subnet_ids?(subnet_ids)
-        Set.new(content.subnet_ids) == Set.new(subnet_ids)
+      def has_subnets?(subnets)
+        content.subnets == subnets
       end
 
       def has_canonical_hosted_zone_name?(canonical_hosted_zone_name)
@@ -85,34 +75,40 @@ module Serverspec
       end
 
       def has_lb_cookie_stickiness_policy?
-        !content.policy_descriptions[:lb_cookie_stickiness_policies].empty?
+        !content.policies.lb_cookie_stickiness_policies.empty?
       end
       
       def has_lb_cookie_stickiness_policy_cookie_name?(name)
-        content.lb_cookie_stickiness_policies[name]
+        if has_lb_cookie_stickiness_policy?
+          return content.policies.lb_cookie_stickiness_policies[0].policy_name == name
+        else
+          raise "ELB with name: #{@elb_name} has no lb cookie stickiness policy"
+        end 
       end
 
       def has_app_cookie_stickiness_policy?
-        !content.policy_descriptions[:app_cookie_stickiness_policies].empty?
+        !content.policies.app_cookie_stickiness_policies.empty?
       end
       
-      #cookie_name?????
       def has_app_cookie_stickiness_policy?(name)
-        content.app_cookie_stickiness_policies[name]
+        if has_app_cookie_stickiness_policy?
+          return content.policies.app_cookie_stickiness_policies[0].policy_name == name
+        else
+          raise "ELB with name: #{@elb_name} has no app cookie stickiness policy"
+        end 
       end
 
       def has_idle_timeout?(expected_idle_timeout)
-        response = AWS::ELB::Client.new.describe_load_balancer_attributes(load_balancer_name: @elb_name)
-        puts response.data
-        response.data[:load_balancer_attributes][:connection_settings][:idle_timeout].to_s == expected_idle_timeout.to_s
+        @elb_attribs.connection_settings.idle_timeout.to_s == expected_idle_timeout.to_s
       end
 
       def has_listener?(expected_listener)
-        actual_listener = content.listeners[expected_listener[:port]]
-        return false if actual_listener == nil
+        listener_description = content.listener_descriptions.find { |desc| desc.listener.load_balancer_port == expected_listener[:port] }
+        return false if listener_description == nil
+        actual_listener = listener_description.listener
 
         actual_listener_map = {
-          :port => actual_listener.port.to_s,
+          :port => actual_listener.load_balancer_port.to_s,
           :protocol => actual_listener.protocol.to_s,
           :instance_protocol => actual_listener.instance_protocol.to_s,
           :instance_port => actual_listener.instance_port.to_s
@@ -122,8 +118,10 @@ module Serverspec
       end
 
       def has_number_of_listeners?(number)
-        content.listeners.enum.inject(0) { |cnt, listener| cnt + 1 } == number
+        content.listener_descriptions.count == number
       end
+
+      #TODO: Include Methods to check ELB security groups
 
       def content
         @elb
@@ -133,13 +131,11 @@ module Serverspec
         "Elastic Load Balancer: #{@elb_name}"
       end
 
-
-      #look for the sg too
     end
 
     #this is how the resource is called out in a spec
-    def elb(elb_name)
-      ELB.new(elb_name)
+    def elb(elb_name, region='us-east-1')
+      ELB.new(elb_name, region)
     end
 
   end
