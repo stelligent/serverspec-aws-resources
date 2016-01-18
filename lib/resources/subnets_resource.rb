@@ -1,9 +1,8 @@
-require 'aws-sdk-v1'
+require 'aws-sdk'
 require 'serverspec'
 
 module Serverspec
   module Type
-
 
     class Subnets < Base
 
