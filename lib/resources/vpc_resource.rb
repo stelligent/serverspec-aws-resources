@@ -84,8 +84,8 @@ module Serverspec
         content.state == "pending"
       end
 
-      def cidr_block
-        content.cidr_block
+      def has_cidr_block?(cidr_block)
+        content.cidr_block == cidr_block
       end
 
       def attached_to_an_internet_gateway?
