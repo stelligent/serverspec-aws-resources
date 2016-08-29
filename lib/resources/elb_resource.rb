@@ -31,7 +31,7 @@ module Serverspec
         actual_cross_zone_load_balancing_enabled == true
       end
 
-      def has_access_logging_enabled(expected_value)
+      def has_access_logging_enabled?(expected_value)
         response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
         actual_access_logging_enabled = response.data[:load_balancer_attributes][:access_log][:enabled]
         actual_access_logging_enabled == expected_value
