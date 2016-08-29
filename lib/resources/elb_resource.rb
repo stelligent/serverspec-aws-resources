@@ -18,35 +18,41 @@ module Serverspec
       def has_scheme?(scheme)
         content.scheme == scheme
       end
-      
-    def has_connection_draining_enabled?
+
+      def has_connection_draining_enabled?
         response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
         actual_connection_draining_enabled = response.data[:load_balancer_attributes][:connection_draining][:enabled]
         actual_connection_draining_enabled == true
-    end
-    
-    def has_cross_zone_load_balancing_enabled?
+      end
+
+      def has_cross_zone_load_balancing_enabled?
         response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
         actual_cross_zone_load_balancing_enabled = response.data[:load_balancer_attributes][:cross_zone_load_balancing][:enabled]
         actual_cross_zone_load_balancing_enabled == true
-    end
+      end
+
+      def has_access_logging_enabled?
+        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
+        actual_access_logging_enabled = response.data[:load_balancer_attributes][:access_log][:enabled]
+        actual_access_logging_enabled == true
+      end
 
       def has_availability_zone_names?(availability_zone_names)
         puts "fOO: #{content.availability_zone_names.class}"
         Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
       end
-      
+
       def has_number_of_availability_zones?(expected_number_of_availability_zones)
         az_array = []
-        content.availability_zones.each do |az| 
+        content.availability_zones.each do |az|
           az_array << az
         end
         az_array.size == expected_number_of_availability_zones
       end
-      
+
       def has_number_of_security_groups?(expected_number_of_security_groups)
         sg_array = []
-        content.security_groups.each do |sg| 
+        content.security_groups.each do |sg|
           sg_array << sg
         end
         sg_array.size == expected_number_of_security_groups
@@ -87,7 +93,7 @@ module Serverspec
       def has_lb_cookie_stickiness_policy?
         !content.policy_descriptions[:lb_cookie_stickiness_policies].empty?
       end
-      
+
       def has_lb_cookie_stickiness_policy_cookie_name?(name)
         content.lb_cookie_stickiness_policies[name]
       end
@@ -95,7 +101,7 @@ module Serverspec
       def has_app_cookie_stickiness_policy?
         !content.policy_descriptions[:app_cookie_stickiness_policies].empty?
       end
-      
+
       #cookie_name?????
       def has_app_cookie_stickiness_policy?(name)
         content.app_cookie_stickiness_policies[name]
@@ -112,12 +118,12 @@ module Serverspec
         return false if actual_listener == nil
 
         actual_listener_map = {
-          :port => actual_listener.port.to_s,
-          :protocol => actual_listener.protocol.to_s,
-          :instance_protocol => actual_listener.instance_protocol.to_s,
-          :instance_port => actual_listener.instance_port.to_s
+            :port => actual_listener.port.to_s,
+            :protocol => actual_listener.protocol.to_s,
+            :instance_protocol => actual_listener.instance_protocol.to_s,
+            :instance_port => actual_listener.instance_port.to_s
         }
-        
+
         actual_listener_map == expected_listener
       end
 
