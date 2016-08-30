@@ -127,7 +127,7 @@ module Serverspec
       def has_listener?(expected_listener)
         actual_listener = content.listeners[expected_listener[:port]]
         puts expected_listener
-        puts actual_listener
+
         return false if actual_listener == nil
 
         actual_listener_map = {
@@ -136,7 +136,7 @@ module Serverspec
             :instance_protocol => actual_listener.instance_protocol.to_s,
             :instance_port => actual_listener.instance_port.to_s
         }
-
+        puts actual_listener_map
         actual_listener_map == expected_listener
       end
 
