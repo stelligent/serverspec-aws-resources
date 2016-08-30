@@ -39,6 +39,16 @@ module Serverspec
         actual_access_logging_enabled == expected_value
       end
 
+      def has_access_logging_emit_interval?(emit_interval)
+        actual_access_logging_emit_interval = attributes.data[:load_balancer_attributes][:access_log][:emit_interval]
+        actual_access_logging_emit_interval == emit_interval
+      end
+
+      def has_access_logging_valid_s3_bucket?
+        actual_access_logging_s3_bucket = attributes.data[:load_balancer_attributes][:access_log][:s3_bucket_name]
+        puts actual_access_logging_s3_bucket
+      end
+
       def has_availability_zone_names?(availability_zone_names)
         puts "fOO: #{content.availability_zone_names.class}"
         Set.new(content.availability_zone_names) == Set.new(availability_zone_names)
