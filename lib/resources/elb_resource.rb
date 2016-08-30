@@ -12,28 +12,30 @@ module Serverspec
       def initialize(elb_name)
         @elb_name = elb_name
         @elb = AWS::ELB.new.load_balancers[elb_name]
+        @elb_attributes = AWS::ELB.new.client.describe_load_balancer_attributes(load_balancer_name: content.name)
       end
-
 
       def has_scheme?(scheme)
         content.scheme == scheme
       end
 
       def has_connection_draining_enabled?
-        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
-        actual_connection_draining_enabled = response.data[:load_balancer_attributes][:connection_draining][:enabled]
+        actual_connection_draining_enabled = attributes.data[:load_balancer_attributes][:connection_draining][:enabled]
         actual_connection_draining_enabled == true
       end
 
+      def has_connection_draining_timeout?(timeout_seconds)
+        actual_connection_draining_timeout = attributes.data[:load_balancer_attributes][:connection_draining][:timeout]
+        actual_connection_draining_timeout == timeout_seconds
+      end
+
       def has_cross_zone_load_balancing_enabled?
-        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
-        actual_cross_zone_load_balancing_enabled = response.data[:load_balancer_attributes][:cross_zone_load_balancing][:enabled]
+        actual_cross_zone_load_balancing_enabled = attributes.data[:load_balancer_attributes][:cross_zone_load_balancing][:enabled]
         actual_cross_zone_load_balancing_enabled == true
       end
 
       def has_access_logging_enabled?(expected_value)
-        response = AWS::ELB.new.client.describe_load_balancer_attributes :load_balancer_name => content.name
-        actual_access_logging_enabled = response.data[:load_balancer_attributes][:access_log][:enabled]
+        actual_access_logging_enabled = attributes.data[:load_balancer_attributes][:access_log][:enabled]
         actual_access_logging_enabled == expected_value
       end
 
@@ -108,9 +110,7 @@ module Serverspec
       end
 
       def has_idle_timeout?(expected_idle_timeout)
-        response = AWS::ELB::Client.new.describe_load_balancer_attributes(load_balancer_name: @elb_name)
-        puts response.data
-        response.data[:load_balancer_attributes][:connection_settings][:idle_timeout].to_s == expected_idle_timeout.to_s
+        attributes.data[:load_balancer_attributes][:connection_settings][:idle_timeout].to_s == expected_idle_timeout.to_s
       end
 
       def has_listener?(expected_listener)
@@ -133,6 +133,10 @@ module Serverspec
 
       def content
         @elb
+      end
+
+      def attributes
+        @elb_attributes
       end
 
       def to_s
