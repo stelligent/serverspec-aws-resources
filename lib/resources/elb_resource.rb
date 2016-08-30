@@ -126,6 +126,8 @@ module Serverspec
 
       def has_listener?(expected_listener)
         actual_listener = content.listeners[expected_listener[:port]]
+        puts expected_listener
+        puts actual_listener
         return false if actual_listener == nil
 
         actual_listener_map = {
