@@ -46,7 +46,6 @@ module Serverspec
 
       def has_access_logging_valid_s3_bucket?
         actual_access_logging_s3_bucket = attributes.data[:load_balancer_attributes][:access_log][:s3_bucket_name]
-        puts actual_access_logging_s3_bucket
         s3 = AWS::S3.new
         s3.buckets[actual_access_logging_s3_bucket].exists?
       end
