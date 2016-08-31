@@ -37,6 +37,8 @@ module Serverspec
       def has_access_logging_enabled?(expected_value)
         actual_access_logging_enabled = attributes.data[:load_balancer_attributes][:access_log][:enabled]
         actual_access_logging_enabled == expected_value
+      end
+
       def has_access_logging_emit_interval?(emit_interval)
         actual_access_logging_emit_interval = attributes.data[:load_balancer_attributes][:access_log][:emit_interval]
         actual_access_logging_emit_interval == emit_interval
